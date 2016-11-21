@@ -13,13 +13,19 @@ numcenters = int(np.random.random((1,))[0] * 4000) + 100
 
 # Argparse
 parser = argparse.ArgumentParser(description="Generate a fractalized gradient.")
-parser.add_argument('-g', '--geometry', type=int, nargs=2, help='A pair of integers specifying the dimensions of the output image.')
+parser.add_argument('-g', '--geometry', type=int, nargs=2, metavar=('WIDTH', 'HEIGHT'), help='The dimensions of the output image.')
+parser.add_argument('-n', '--numcenters', type=int, help='The number of vertices to compute the Voronoi diagram from.')
+parser.add_argument('-o', '--outlines', action='store_true', help='Draw outlines around each polygon.')
+parser.add_argument('-f', '--file', type=str, help='Output filename.')
 
 # Parse arguments
 args = parser.parse_args(sys.argv[1:])
 
 if args.geometry:
     geom = tuple(args.geometry)
+
+if args.numcenters:
+    numcenters = args.numcenters
 
 def rand_in_rect(aspect, count):
     ret = []
@@ -80,9 +86,13 @@ for color,vertices in colors_and_vertices:
 for poly,fill in zip(polys, fill_colors):
     draw.polygon(poly, fill=fill)
 
-for poly,outline in zip(polys, outline_colors):
-    draw.polygon(poly, outline=outline)
+if args.outlines:
+    for poly,outline in zip(polys, outline_colors):
+        draw.polygon(poly, outline=outline)
 
 del draw
 
-im.save("output.png")
+if args.file:
+    im.save(args.file)
+else:
+    im.save("output.png")
